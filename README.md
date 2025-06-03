@@ -17,7 +17,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/jianfeeeee/Transcomment.git
+git clone https://github.com/JianFeeeee/Transcomment.git
 cd code-comment-translator
 
 # 首次运行会自动设置环境
