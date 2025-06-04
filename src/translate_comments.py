@@ -38,8 +38,8 @@ config.read(str(config_path))  # Convert to string for compatibility
 http_client = httpx.Client(transport=httpx.HTTPTransport())
 
 client = OpenAI(
-    api_key=config["APIKEY"]["apikey"],
-    base_url="https://api.siliconflow.cn/v1",
+    api_key=config["API"]["apikey"],
+    base_url=config['API']["apiurl"],
     http_client=http_client  # 显式禁用代理
 )
 
@@ -56,7 +56,9 @@ def ai_tr(message, module, i=0):
         response = client.chat.completions.create(  
             model=module[i],  
             messages=[    
-                {"role": "system", "content": "你是一个翻译家，你要为接下来的所有输入给出对应的中文翻译，注意保留原有的符号，注意不要给出解释只给出翻译即可"},  
+                {"role": "system", "content":
+"你是一个翻译家，你要为接下来的所有输入给出对应的中文翻译，注意保留原有的符号，同时注意保留原有的空格换行等，注意不要给出解释只给出翻译即可"
+                },  
                 {"role": "user", "content": message}  
             ],  
             temperature=0.7,  
@@ -124,7 +126,7 @@ def add_translation_marker(file_path):
         # Add marker at beginning of file
 # 
 # 在文件开头添加标记
-        with open(file_path, 'w', encoding='utf-8') as file:
+        with open(file_path, 'w', encoding=get_encoding(file_path)) as file:
             file.write(marker + content)
     except Exception as e:
         print(f"Error adding translation marker: {e}")
@@ -139,18 +141,14 @@ def extract_comments(file_path):
 # 根据文件类型选择正则表达式模式
     if file_path.endswith('.py'):
         # 匹配Python注释的正则表达式（单行注释 + 特定条件的三引号注释）
-        pattern = r'''
-            (?:                     # 开始非捕获分组
-                ^                   # 条件1: 行首
-                | (?<=[\s)\]}])     # 条件2: 前一个字符是空格/右括号/右方括号/右大括号
-            )
-            (\"\"\"|\'\'\')         # 匹配三引号（单引号或双引号）
-            .*?                     # 非贪婪匹配任意内容（包括换行）
-            \1                      # 匹配相同的结束三引号
-            |                       # 或
-            \#.*$                   # 匹配单行注释（从#到行尾）
-        '''
-        comment_pattern = re.compile(pattern, re.VERBOSE | re.DOTALL | re.MULTILINE)
+        comment_pattern = re.compile(r"""
+        \s*(?: 
+            ''' [\s\S]*? '''    
+        | \"\"\" [\s\S]*? \"\"\"  
+        )
+        | \s*\#.*$  
+""", re.VERBOSE | re.DOTALL | re.MULTILINE)
+
     elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
         # C/C++/Java: single and multi-line comments
         comment_pattern = re.compile(r'//.*?$|/\*.*?\*/', re.DOTALL | re.MULTILINE)
@@ -225,16 +223,6 @@ def add_translated_comments(file_path, module):
         translated = ai_tr(comment_text, module)
         if not translated:
             continue
-            
-        # Add appropriate comment marker
-# 
-# 添加适当的注释标记
-        if file_path.endswith('.py'):
-            translated = f"{translated}"
-# 
-# {翻译}
-        elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
-            translated = f"{translated}"
         
         lines.insert(insertion_line, f'{translated}\n')
 
@@ -252,7 +240,7 @@ def add_translated_comments(file_path, module):
 
 def process_file(file, module):
     """Process a single file"""
-    if file.endswith(('.c', '.h', '.py', '.java')):
+    if file.endswith(('.c', '.h', '.py', '.java','.js','.ts','.cpp')):
         print(f'Processing: {file}')
         add_translated_comments(file, module)
 

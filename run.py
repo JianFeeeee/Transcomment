@@ -35,9 +35,9 @@ def mut_process(directory, max_processes):
     directory = Path(directory)  # 转换为Path对象
 
     # 使用Path.rglob递归遍历所有文件
-    
+    all_files = (f for f in directory.rglob('*') if f.is_file())
+    num = sum(1 for _ in all_files)  # 计数而不存储
     file_paths = [f for f in directory.rglob('*') if f.is_file()]
-    num  = len(file_paths)
     bar = progressbar.ProgressBar(max_value=num)
     processed_file = 0
     bar.update(processed_file)
@@ -63,6 +63,7 @@ def mut_process(directory, max_processes):
 
         # 启动新子进程
         process = run_subprocess(file_path)
+        bar.update(processed_file)
         
         active_processes.append(process)
         
