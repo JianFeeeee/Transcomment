@@ -7,7 +7,7 @@
 
 ## 功能特点
 
-- 支持 Python/C/C++/Java 文件
+- 支持 Python/C/C++/Java/JavaScript/TypeScript 文件
 - 多进程并发处理（建议不超过90进程）
 - 自动跳过已翻译文件
 - 保留原始代码格式

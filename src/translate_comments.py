@@ -94,7 +94,7 @@ def is_translated(file_path):
 # 
 # 由AI翻译" 在行中
                         return True
-                elif file_path.endswith(('.c', '.h', '.java')):
+                elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
                     if "// Translated by AI" in line:
                         return True
     except Exception as e:
@@ -114,7 +114,7 @@ def add_translation_marker(file_path):
             marker = "# Translated by AI\n\n"
 # 
 # 由AI翻译\n\n"
-        elif file_path.endswith(('.c', '.h', '.java')):
+        elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
             marker = "// Translated by AI\n\n"
         else:
             marker = "// Translated by AI\n\n"  # Default to C-style marker
@@ -144,7 +144,7 @@ def extract_comments(file_path):
         comment_pattern = re.compile(r'#.*?$', re.MULTILINE)
 # 
 #.*?$', re.MULTILINE)
-    elif file_path.endswith(('.c', '.h', '.java')):
+    elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
         # C/C++/Java: single and multi-line comments
 # 
 # C/C++/Java: 单行和多行注释
@@ -227,11 +227,11 @@ def add_translated_comments(file_path, module):
 # 
 # 添加适当的注释标记
         if file_path.endswith('.py'):
-            translated = f"# {translated}"
+            translated = f"{translated}"
 # 
 # {翻译}
-        elif file_path.endswith(('.c', '.h', '.java')):
-            translated = f"// {translated}"
+        elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
+            translated = f"{translated}"
         
         lines.insert(insertion_line, f'{translated}\n')
 
