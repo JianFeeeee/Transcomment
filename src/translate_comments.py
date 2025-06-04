@@ -138,23 +138,26 @@ def extract_comments(file_path):
 # 
 # 根据文件类型选择正则表达式模式
     if file_path.endswith('.py'):
-        # Python: single-line comments
-# 
-# Python: 单行注释
-        comment_pattern = re.compile(r'#.*?$', re.MULTILINE)
-# 
-#.*?$', re.MULTILINE)
+        # 匹配Python注释的正则表达式（单行注释 + 特定条件的三引号注释）
+        pattern = r'''
+            (?:                     # 开始非捕获分组
+                ^                   # 条件1: 行首
+                | (?<=[\s)\]}])     # 条件2: 前一个字符是空格/右括号/右方括号/右大括号
+            )
+            (\"\"\"|\'\'\')         # 匹配三引号（单引号或双引号）
+            .*?                     # 非贪婪匹配任意内容（包括换行）
+            \1                      # 匹配相同的结束三引号
+            |                       # 或
+            \#.*$                   # 匹配单行注释（从#到行尾）
+        '''
+        comment_pattern = re.compile(pattern, re.VERBOSE | re.DOTALL | re.MULTILINE)
     elif file_path.endswith(('.c', '.h', '.java','.js','.ts','.cpp')):
         # C/C++/Java: single and multi-line comments
-# 
-# C/C++/Java: 单行和多行注释
         comment_pattern = re.compile(r'//.*?$|/\*.*?\*/', re.DOTALL | re.MULTILINE)
     else:
         # Default to C/C++ style
-# 
-# 默认使用C/C++风格
         comment_pattern = re.compile(r'//.*?$|/\*.*?\*/', re.DOTALL | re.MULTILINE)
-    
+
     return comment_pattern.finditer(content), content
 
 def add_translated_comments(file_path, module):

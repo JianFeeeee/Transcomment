@@ -35,10 +35,12 @@ def mut_process(directory, max_processes):
     directory = Path(directory)  # 转换为Path对象
 
     # 使用Path.rglob递归遍历所有文件
+    
     file_paths = [f for f in directory.rglob('*') if f.is_file()]
     num  = len(file_paths)
     bar = progressbar.ProgressBar(max_value=num)
     processed_file = 0
+    bar.update(processed_file)
     for file_path in file_paths:
         while len(active_processes) >= max_processes:
             # 检查并清理完成的进程
