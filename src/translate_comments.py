@@ -183,7 +183,6 @@ def add_translated_comments(file_path, module):
 
     for match in comments:
         start = match.start()
-        end = match.end()
         comment_text = match.group(0)
 
         # Calculate line number (1-based)
@@ -219,7 +218,6 @@ def add_translated_comments(file_path, module):
         # Translate comment
 # 
 # 翻译评论
-        print(f"Translating comment: {comment_text[:50]}...")
         translated = ai_tr(comment_text, module)
         if not translated:
             continue
@@ -280,7 +278,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if len(sys.argv) < 2:
-        print("Usage: python script.py <file_path>")
         sys.exit(1)
         
     process_file(sys.argv[1], module)
